@@ -8,7 +8,7 @@ public class Lab3{
         Socket socket = null;
         try{
             socket = new Socket("dict.org", 2628);
-            socket.setSoTimeout(15000);
+            socket.setSoTimeout(30000);
             OutputStream out = socket.getOutputStream();
             Writer writer = new OutputStreamWriter(out, "UTF-8");
             InputStream in = socket.getInputStream();

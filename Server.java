@@ -3,25 +3,21 @@ import java.io.*;
 
 public class Server{
     public static void main(String[] args){
-        try(ServerSocket server = new ServerSocket(9999)){
-            Socket client = server.accept();
-            InputStream in = client.getInputStream();
-            InputStreamReader reader = new InputStreamReader(in, "UTF-8");
-            BufferedReader br = new BufferedReader(reader);
-            String message_recv;
-            while((message_recv = br.readLine()) != null){
-                System.out.println("Client: "+message_recv);
-                OutputStream out = client.getOutputStream();
-                Writer writer = new OutputStreamWriter(out, "UTF-8");
+        try(DatagramSocket socket = new DatagramSocket(8888)){
+            while(true){
+                byte[] send_bytes = new byte[1024];
+                DatagramPacket recv_packet = new DatagramPacket(send_bytes, 0, send_bytes.length);
+                socket.receive(recv_packet);
+                System.out.println("Client: "+new String(recv_packet.getData(), 0, recv_packet.getData().length));
                 System.out.print("You: ");
-                BufferedReader br2 = new BufferedReader(new InputStreamReader(System.in));
-                String message = br2.readLine();
-                writer.write(message+"\n");
-                writer.flush();
+                BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                String send_msg = br.readLine();
+                InetAddress ip = recv_packet.getAddress();
+                int port = recv_packet.getPort();
+                DatagramPacket send_packet = new DatagramPacket(send_msg.getBytes(), 0, send_msg.getBytes().length, ip, port);
+                socket.send(send_packet);
             }
-        }catch(SocketException ex){
-            ex.printStackTrace();
-        }catch(IOException ex){
+        }catch(Exception ex){
             ex.printStackTrace();
         }
     }
